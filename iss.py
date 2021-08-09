@@ -3,6 +3,7 @@ import ephem
 from ephem import degree
 import urllib2
 import math
+from datetime import datetime
 
 
 class ISS:
@@ -28,25 +29,29 @@ class ISS:
         """ Download uptodate TLE TXT file """
         try:
             date_now = datetime.now()
-            if self.last_tle_update is None or self.last_tle_update.day() != date_now.day:
+            if self.last_tle_update is None or self.last_tle_update.day != date_now.day:
+                print("Downloading latest TLE")
                 # Only update once a day
                 self.last_tle_update = date_now
 
                 response = urllib2.urlopen(
                     'http://www.celestrak.com/NORAD/elements/stations.txt')
-                tle_txt = response.read()  # Read online file into string variable
-                tle_list = tle_txt.split('\n')  # split the file into list of lines
+
+                # Read online file into string variable
+                tle_txt = response.read()
+                # split the file into list of lines
+                tle_list = tle_txt.split('\n')
 
                 # Find list index which has ZARYA in the name
                 indices = [i for i, s in enumerate(tle_list) if 'ZARYA' in s]
 
                 # If we found it, update the initial default ISS TLE strings
-                if len(indices) and len(tle_list) > (indices[0]+2):
+                if len(indices) and len(tle_list) > (indices[0] + 2):
                     self.name = tle_list[indices[0]]
-                    self.line1 = tle_list[indices[0]+1]
-                    self.line2 = tle_list[indices[0]+2]
-        except:
-            pass
+                    self.line1 = tle_list[indices[0] + 1]
+                    self.line2 = tle_list[indices[0] + 2]
+        except Exception as e:
+            print("Failed to Download latest TLE ({})".format(e))
 
     def get_observer(self, date):
         """ Return the current observer,

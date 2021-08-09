@@ -18,20 +18,27 @@ iss_sat = iss.ISS()
 try:
     running = True
     while running:
+
+        print("Get Date/Time")
+
         # Get current date/time
         date_now = datetime.now()
+        date_utc_now = datetime.utcnow()
 
         # Calculate current ISS position
-        lat, lon, alt = iss_sat.compute_iss_position(date_now)
+        lat, lon, alt = iss_sat.compute_iss_position(date_utc_now)
 
         # Calculate when the ISS will next be overhead
-        next_pass_info = iss_sat.compute_iss_next_pass(date_now)
+        next_pass_info = iss_sat.compute_iss_next_pass(date_utc_now)
         next_rise_time = next_pass_info[0]
         next_rize_azi = next_pass_info[1]
         next_peak_time = next_pass_info[2]
         next_peak_alt = next_pass_info[3]
         next_set_time = next_pass_info[4]
         next_set_azi = next_pass_info[5]
+
+
+        print("Create map image")
 
         # Draw a globe centered about current ISS location
         map = Basemap(projection='ortho', lat_0=lat, lon_0=lon)
@@ -42,6 +49,8 @@ try:
         # Plot lat/lon of ISS
         lons, lats = map([lon], [lat])
         map.scatter(lons, lats, marker='o', color='red', zorder=5)
+
+        print("Compute previous ISS position points")
 
         # Compute previous and next locations (path) of ISS
         path_lats = []
@@ -99,9 +108,14 @@ try:
             color='red'
         )
 
+        print("Export globe and ISS to temp image")
+
         # Export globe and ISS image to temp file
         plt.savefig(filename)
         plt.clf()
+
+        print("Load temp image and display on e-ink display")
+        print(filename)
 
         # Instantiate InkywHAT display and
         # load temp image from file and scale to 400x300
@@ -118,12 +132,16 @@ try:
         y1 = h_new
         img = img.crop((x0, y0, x1, y1))
 
+        print("Converting Image to 3 colour palette")
+
         # Convert image to 3 colour palette (W, B, R)
         pal_img = Image.new("P", (1, 1))
         pal_img.putpalette(
             (255, 255, 255, 0, 0, 0, 255, 0, 0) + (0, 0, 0) * 252
         )
         img = img.convert("RGB").quantize(palette=pal_img)
+
+        print("Displaying image on Inky Display")
 
         # Display image on InkywHAT
         inkywhat.set_image(img)
@@ -134,4 +152,3 @@ try:
 
 except Exception as e:
     print(e)
-

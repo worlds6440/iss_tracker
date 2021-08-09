@@ -57,7 +57,7 @@ try:
         path_lons = []
         for x in range(-20, 25, 5):
             # Calculate ISS position at point on orbit
-            path_date = datetime.now() + timedelta(minutes=x)
+            path_date = datetime.utcnow() + timedelta(minutes=x)
             r_lat, r_lon, r_alt = iss_sat.compute_iss_position(path_date)
             # append location to path_list
             path_lats.append(r_lat)

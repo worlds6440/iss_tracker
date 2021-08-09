@@ -10,3 +10,5 @@ Enable I2C and SPI in sudo raspi-config
 sudo pip install pyephem  
 sudo pip install inky[rpi,fonts]  
 sudo apt-get install python-mpltoolkits.basemap  
+Make the script executable chmod +x iss.sh  
+Add the following to crontab @reboot /home/pi/Projects/iss_tracker/iss.sh  
